@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>english</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirection vers le menu du jour</title>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // 📌 1️⃣ Générer la date du jour au format JJ.MM.AA
+      const today = new Date();
+      const formattedDate = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getFullYear()).slice(2)}`;
+      
+      // 📌 2️⃣ Construire l'URL du fichier PDF anglais
+      const pdfUrl = `https://raw.githubusercontent.com/omblinefilon/menu-du-jour/main/pdf/${formattedDate}-EN.pdf`;
+
+      console.log("🔗 Redirection vers :", pdfUrl);
+
+      // 📌 3️⃣ Vérifier si le fichier existe avant de rediriger
+      fetch(pdfUrl, { method: 'HEAD' })
+        .then(response => {
+          if (response.ok) {
+            window.location.href = pdfUrl; // ✅ Rediriger vers le PDF si trouvé
+          } else {
+            document.body.innerHTML = `<p style="text-align: center; font-size: 18px; color: red;">
+              ❌ Aucun menu disponible pour aujourd'hui (${formattedDate}).
+            </p>`;
+          }
+        })
+        .catch(error => {
+          console.error("❌ Erreur lors de la vérification du fichier :", error);
+          document.body.innerHTML = `<p style="text-align: center; font-size: 18px; color: red;">
+            ❌ Erreur lors de la récupération du menu.
+          </p>`;
+        });
+    });
+  </script>
+</head>
+<body>
+  <p style="text-align: center;">⌛ Chargement du menu...</p>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
