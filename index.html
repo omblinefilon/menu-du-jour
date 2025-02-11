@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>index</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<script>
+    const FOLDER_ID = "1UczvdqANMUj5PCL4DxPQkeUyRgi_Gubn"; // 📂 ID du dossier Google Drive
+    const API_KEY = "AIzaSyArho1MWsKk1i01hfKovL8suXt7-14_32k"; // 🔥 Clé API insérée ici
+
+    document.addEventListener("DOMContentLoaded", function () {
+      // 📌 1️⃣ Générer la date du jour au format JJ.MM.AA
+      const today = new Date();
+      const formattedDate = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getFullYear()).slice(2)}`;
+      const expectedFileName = `${formattedDate}.pdf`;
+
+      console.log("🔎 Recherche du fichier :", expectedFileName);
+
+      // 📌 2️⃣ Récupérer la liste des fichiers dans le dossier Google Drive
+      const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}`;
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const files = data.files;
+          if (!files || files.length === 0) {
+            document.getElementById("pdfContainer").innerHTML = "<p style='text-align:center; color:red;'>❌ Aucun menu disponible.</p>";
+            return;
+          }
+
+          // 📌 3️⃣ Trouver le fichier correspondant à la date du jour
+          const file = files.find(f => f.name === expectedFileName);
+          if (!file) {
+            document.getElementById("pdfContainer").innerHTML = `<p style='text-align:center; color:red;'>❌ Aucun menu trouvé pour aujourd'hui (${formattedDate}).</p>`;
+            return;
+          }
+
+          const fileId = file.id;
+          const pdfUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+          console.log("✅ Fichier trouvé :", file.name, "| ID :", fileId);
+
+          // 📌 4️⃣ Afficher le PDF avec PDF.js
+          loadPDF(pdfUrl);
+        })
+        .catch(error => {
+          console.error("❌ Erreur lors de la récupération du fichier :", error);
+          document.getElementById("pdfContainer").innerHTML = "<p style='text-align:center; color:red;'>❌ Erreur lors du chargement du menu.</p>";
+        });
+
+      function loadPDF(url) {
+        const loadingTask = pdfjsLib.getDocument(url);
+        loadingTask.promise.then(pdf => {
+          pdf.getPage(1).then(page => {
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale: scale });
+
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            document.getElementById("pdfContainer").appendChild(canvas);
+
+            const renderContext = {
+              canvasContext: context,
+              viewport: viewport
+            };
+            page.render(renderContext);
+          });
+        }).catch(error => {
+          console.error("❌ Erreur lors du chargement du PDF :", error);
+          document.getElementById("pdfContainer").innerHTML = `<p style="text-align:center; color:red;">❌ Erreur lors de l'affichage du menu.</p>`;
+        });
+      }
+    });
+</script>
+<!-- partial -->
+  
+</body>
+</html>
