@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>english</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Today's Menu</title>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Générer la date du jour au format JJ.MM.AA
+      const today = new Date();
+      const day = String(today.getDate()).padStart(2, '0');
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const year = String(today.getFullYear()).slice(2);
+      const formattedDate = `${day}.${month}.${year}`;
+
+      // Construire l'URL du fichier PDF
+      const pdfUrl = `https://raw.githubusercontent.com/omblinefilon/menu-du-jour/main/pdf/${formattedDate}-EN.pdf`;
+      console.log("URL du PDF généré :", pdfUrl);
+
+      // Vérifier si le fichier existe avant de l'afficher
+      fetch(pdfUrl, { method: 'HEAD' })
+        .then(response => {
+          if (response.ok) {
+            console.log("Fichier trouvé, affichage dans un iframe...");
+            // Intégrer le PDF dans un iframe
+            document.body.innerHTML = `
+              <iframe src="${pdfUrl}" 
+                      style="width: 100%; height: 100vh; border: none;" 
+                      title="Today's Menu">
+              </iframe>`;
+          } else {
+            console.warn("Aucun fichier trouvé pour aujourd'hui.");
+            document.body.innerHTML = `<p style="text-align: center; font-size: 18px; color: red;">
+              ❌ No menu available for today (${formattedDate}-EN.pdf).
+            </p>`;
+          }
+        })
+        .catch(error => {
+          console.error("Erreur lors de la récupération du fichier :", error);
+          document.body.innerHTML = `<p style="text-align: center; font-size: 18px; color: red;">
+            ❌ Error loading the menu.
+          </p>`;
+        });
+    });
+  </script>
+</head>
+<body>
+  <p style="text-align: center;">⌛ Loading today's menu...</p>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
