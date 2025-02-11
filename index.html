@@ -15,13 +15,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menu du Jour</title>
   
-  <!-- ✅ Correction 1 : Charger correctement PDF.js -->
+  <!-- ✅ Correction : Charger correctement PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"></script>
 
   <script>
-    const FOLDER_ID = "AIzaSyArho1MWsKk1i01hfKovL8suXt7-14_32k"; // ID du dossier Google Drive
-    const API_KEY = "AIzaSyD3I-TonAPIexempleiEMX"; // Remplace par ta clé API
+    const FOLDER_ID = "1UczvdqANMUj5PCL4DxPQkeUyRgi_Gubn"; // ID du dossier Google Drive
+    const API_KEY = "AIzaSyArho1MWsKk1i01hfKovL8suXt7-14_32k"; // Remplace par TA clé API
 
     document.addEventListener("DOMContentLoaded", function () {
       const pdfContainer = document.getElementById("pdfContainer");
@@ -39,64 +39,40 @@
       console.log("🔎 Recherche du fichier :", expectedFileName);
 
       // 📌 2️⃣ Récupérer la liste des fichiers dans le dossier Google Drive
-      const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}`;
+      const apiUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent("'" + FOLDER_ID + "' in parents")}&key=${API_KEY}`;
 
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-          const files = data.files;
-          if (!files || files.length === 0) {
+          if (!data.files || data.files.length === 0) {
             pdfContainer.innerHTML = "<p style='text-align:center; color:red;'>❌ Aucun menu disponible.</p>";
             return;
           }
 
           // 📌 3️⃣ Trouver le fichier correspondant à la date du jour
-          const file = files.find(f => f.name === expectedFileName);
+          const file = data.files.find(f => f.name === expectedFileName);
           if (!file) {
             pdfContainer.innerHTML = `<p style='text-align:center; color:red;'>❌ Aucun menu trouvé pour aujourd'hui (${formattedDate}).</p>`;
             return;
           }
 
           const fileId = file.id;
-          const pdfUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+          const pdfUrl = `https://drive.google.com/file/d/${fileId}/preview`;
 
           console.log("✅ Fichier trouvé :", file.name, "| ID :", fileId);
 
-          // 📌 4️⃣ Afficher le PDF avec PDF.js
-          loadPDF(pdfUrl);
+          // 📌 4️⃣ Afficher le PDF avec un <iframe> (évite les erreurs CORS)
+          pdfContainer.innerHTML = `
+              <iframe src="${pdfUrl}" width="100%" height="800px" style="border: none;"></iframe>
+          `;
         })
         .catch(error => {
           console.error("❌ Erreur lors de la récupération du fichier :", error);
           pdfContainer.innerHTML = "<p style='text-align:center; color:red;'>❌ Erreur lors du chargement du menu.</p>";
         });
-
-      function loadPDF(url) {
-        const loadingTask = pdfjsLib.getDocument(url);
-        loadingTask.promise.then(pdf => {
-          pdf.getPage(1).then(page => {
-            const scale = 1.5;
-            const viewport = page.getViewport({ scale: scale });
-
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            pdfContainer.appendChild(canvas);
-
-            const renderContext = {
-              canvasContext: context,
-              viewport: viewport
-            };
-            page.render(renderContext);
-          });
-        }).catch(error => {
-          console.error("❌ Erreur lors du chargement du PDF :", error);
-          pdfContainer.innerHTML = `<p style="text-align:center; color:red;">❌ Erreur lors de l'affichage du menu.</p>`;
-        });
-      }
     });
   </script>
+
   <style>
     body, html {
       margin: 0;
@@ -119,7 +95,7 @@
   </style>
 </head>
 <body>
-  <!-- ✅ Correction 2 : Vérifier que cet élément est bien présent -->
+  <!-- ✅ Correction : Vérifier que cet élément est bien présent -->
   <div id="pdfContainer">
     <p style="text-align:center;">⌛ Chargement du menu...</p>
   </div>
