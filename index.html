@@ -14,11 +14,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menu du Jour</title>
-  <!-- Correction 1 : Charger PDF.js correctement -->
+  
+  <!-- ✅ Correction 1 : Charger correctement PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"></script>
+
   <script>
-    const FOLDER_ID = "1UczvdqANMUj5PCL4DxPQkeUyRgi_Gubn"; // ID du dossier Google Drive
-    const API_KEY = "AIzaSyArho1MWsKk1i01hfKovL8suXt7-14_32k"; // Remplace par ta clé API
+    const FOLDER_ID = "AIzaSyArho1MWsKk1i01hfKovL8suXt7-14_32k"; // ID du dossier Google Drive
+    const API_KEY = "AIzaSyD3I-TonAPIexempleiEMX"; // Remplace par ta clé API
 
     document.addEventListener("DOMContentLoaded", function () {
       const pdfContainer = document.getElementById("pdfContainer");
@@ -114,10 +117,9 @@
       padding: 20px;
     }
   </style>
-  <!-- Correction 3 : Ajouter un favicon pour éviter l'erreur 404 -->
-  <link rel="icon" type="image/png" href="https://via.placeholder.com/16" />
 </head>
 <body>
+  <!-- ✅ Correction 2 : Vérifier que cet élément est bien présent -->
   <div id="pdfContainer">
     <p style="text-align:center;">⌛ Chargement du menu...</p>
   </div>
