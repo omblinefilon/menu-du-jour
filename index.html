@@ -17,7 +17,7 @@
 
   <script>
     const FOLDER_ID = "1UczvdqANMUj5PCL4DxPQkeUyRgi_Gubn"; // ID du dossier Google Drive
-    const API_KEY = "AIzaSyArho1MWsKk1i01hfKovL8suXt7-14_32k"; // Remplace par ta clé API
+    const API_KEY = "AIzaSyArho1MWsKk1i01hfKovL8suXt7-14_32k"; // Remplace par TA clé API
 
     document.addEventListener("DOMContentLoaded", function () {
       const pdfContainer = document.getElementById("pdfContainer");
@@ -30,9 +30,9 @@
       // 📌 1️⃣ Générer la date du jour au format JJ.MM.AA
       const today = new Date();
       const formattedDate = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getFullYear()).slice(2)}`;
-      const expectedFileName = `${formattedDate}.pdf`;
+      const expectedFileName = `${formattedDate}.pdf`.trim();
 
-      console.log("🔎 Recherche du fichier :", expectedFileName);
+      console.log("📅 Date générée par le script :", expectedFileName);
 
       // 📌 2️⃣ Récupérer la liste des fichiers dans le dossier Google Drive
       const apiUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent("'" + FOLDER_ID + "' in parents")}&key=${API_KEY}`;
@@ -40,15 +40,21 @@
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
+          console.log("📂 Liste des fichiers dans le dossier Google Drive :", data.files);
+
           if (!data.files || data.files.length === 0) {
+            console.warn("⚠ Aucun fichier trouvé dans le dossier Google Drive.");
             pdfContainer.innerHTML = "<p class='error-message'>❌ Aucun menu disponible.</p>";
             return;
           }
 
           // 📌 3️⃣ Trouver le fichier correspondant à la date du jour
-          const file = data.files.find(f => f.name === expectedFileName);
+          const file = data.files.find(f => f.name.trim() === expectedFileName);
+
           if (!file) {
-            pdfContainer.innerHTML = `<p class='error-message'>❌ Aucun menu trouvé pour aujourd'hui (${formattedDate}).</p>`;
+            console.warn(`⚠ Aucun fichier trouvé avec le nom exact '${expectedFileName}'.`);
+            console.log("📂 Liste des fichiers disponibles :", data.files.map(f => f.name));
+            pdfContainer.innerHTML = `<p class='error-message'>❌ Aucun menu trouvé pour aujourd'hui (${expectedFileName}).</p>`;
             return;
           }
 
@@ -56,6 +62,7 @@
           const pdfUrl = `https://drive.google.com/file/d/${fileId}/preview`;
 
           console.log("✅ Fichier trouvé :", file.name, "| ID :", fileId);
+          console.log("🔗 Lien du PDF :", pdfUrl);
 
           // 📌 4️⃣ Afficher le PDF en plein écran
           pdfContainer.innerHTML = `
@@ -85,7 +92,7 @@
     #pdfContainer {
       width: 100%;
       max-width: 1000px;
-      height: 90vh; /* 📌 Prend presque tout l'écran */
+      height: 90vh;
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
       background: white;
       text-align: center;
